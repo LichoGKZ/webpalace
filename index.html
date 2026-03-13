@@ -1152,6 +1152,12 @@ VALIDAR PAGO
 }
 
 function validarTitular(){
+fbq('track','Purchase',{
+value:3500,
+currency:'ARS',
+content_name:'Palace VIP',
+content_type:'product'
+});
 
 titular=document.getElementById("titular").value
 
