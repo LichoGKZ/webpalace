@@ -20,6 +20,12 @@ s.parentNode.insertBefore(t,s)}
 
 fbq('init', '1383716853246156');
 fbq('track', 'PageView');
+
+fbq('track','ViewContent',{
+content_name:'Palace VIP',
+value:3500,
+currency:'ARS'
+});
 </script>
 
 <noscript>
@@ -732,7 +738,7 @@ transform:translateY(0);
 </div>
 
 
-<button class="btn-comprar" onclick="mostrarCompra();">
+<button class="btn-comprar" onclick="fbq('track','InitiateCheckout'); mostrarCompra();">
 🔥 VER TODO
 </button>
 
@@ -968,13 +974,16 @@ generarCompradores()
 
 
 
-
+fbq('track','InitiateCheckout')
 
 
 function copiarAlias(){
 
-fbq('track','AddToCart')
-
+fbq('track','AddToCart',{
+content_name:'Palace VIP',
+value:3500,
+currency:'ARS'
+});
 const alias="licho380.nx"
 
 navigator.clipboard.writeText(alias)
@@ -1250,7 +1259,9 @@ href="https://drive.google.com/drive/folders/1UoD5Rko4MD_KgMbQ-WYkc109NQf6s-GF?u
 `;
 fbq('track','Purchase',{
 value:3500,
-currency:'ARS'
+currency:'ARS',
+content_name:'Palace VIP',
+content_type:'product'
 });
 lanzarConfetti()
 
