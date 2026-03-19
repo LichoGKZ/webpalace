@@ -1476,12 +1476,36 @@ requestAnimationFrame(frame)
 
 }
 
+function trackLeadAndGo(url, nombre) {
+  if (typeof fbq !== "undefined") {
+    fbq('track', 'Lead', {
+      content_name: nombre,
+      content_category: 'Entrada',
+      value: 3500,
+      currency: 'ARS'
+    });
+  }
+
+  setTimeout(function() {
+    window.location.href = url;
+  }, 150);
+}
+
 function irDiscord(){
-window.location.href = "https://discord.gg/SXqwumrnGQ"
+  trackLeadAndGo("https://discord.gg/SXqwumrnGQ", "Lead Discord");
 }
 
 function verWeb(){
-document.getElementById("selector").style.display = "none"
+  if (typeof fbq !== "undefined") {
+    fbq('track', 'Lead', {
+      content_name: 'Lead Web',
+      content_category: 'Entrada',
+      value: 3500,
+      currency: 'ARS'
+    });
+  }
+
+  document.getElementById("selector").style.display = "none";
 }
 
 
