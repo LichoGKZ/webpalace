@@ -8,105 +8,91 @@
 <title>Acceso VIP</title>
 
 <script>
-
-// ===== Obtener fbp =====
+!function(f,b,e,v,n,t,s){...}
+fbq('init','1383716853246156');
+fbq('track','PageView');
+  
 function getCookie(name){
-const match =
-document.cookie.match(
-new RegExp('(^| )'+name+'=([^;]+)')
-);
+    const match =
+    document.cookie.match(
+        new RegExp('(^| )'+name+'=([^;]+)')
+    );
 
-return match
-? match[2]
-: null;
+    return match
+    ? match[2]
+    : null;
 }
 
-
-// ===== Obtener fbclid y crear fbc =====
 function getFbc(){
 
-const url =
-new URL(window.location.href);
+    const url =
+    new URL(window.location.href);
 
-const fbclid =
-url.searchParams.get("fbclid");
+    const fbclid =
+    url.searchParams.get("fbclid");
 
-if(fbclid){
+    if(fbclid){
 
-const ts =
-Date.now();
+        const fbc =
+        `fb.1.${Date.now()}.${fbclid}`;
 
-const fbc =
-`fb.1.${ts}.${fbclid}`;
+        localStorage.setItem(
+            "meta_fbc",
+            fbc
+        );
 
-localStorage.setItem(
-"meta_fbc",
-fbc
-);
+        return fbc;
+    }
 
-return fbc;
-
+    return localStorage.getItem(
+        "meta_fbc"
+    );
 }
-
-return localStorage.getItem(
-"meta_fbc"
-);
-
-}
-
-
-// ===== Guardar datos =====
-
-const tracking = {
-
-fbp:
-getCookie("_fbp"),
-
-fbc:
-getFbc(),
-
-ua:
-navigator.userAgent
-
-};
-
-
-localStorage.setItem(
-"meta_tracking",
-JSON.stringify(tracking)
-);
-
-
-// ===== Redireccion =====
 
 function irDiscord(){
 
-fbq(
-'trackCustom',
-'DiscordClick'
-);
+    fetch("https://api.ipify.org?format=json")
+    .then(r=>r.json())
+    .then(data=>{
+    
+    const tracking={
+    
+    fbp:getCookie("_fbp"),
+    
+    fbc:getFbc(),
+    
+    ua:navigator.userAgent,
+    
+    ip:data.ip
+    
+    };
+    
+    const token =
+    btoa(JSON.stringify(tracking));
+    
+    window.location.href=
+    `https://discord.gg/bE3gUhz9Tb?meta=${token}`;
+    
+    });
 
 
-// agregar datos al invite
-const data =
-encodeURIComponent(
-JSON.stringify(
-tracking
-)
-);
+    const token =
+    btoa(
+        JSON.stringify(
+            tracking
+        )
+    );
 
 
-window.location.href =
-`https://discord.gg/bE3gUhz9Tb?meta=${data}`;
+    window.location.href=
+    `https://discord.gg/bE3gUhz9Tb?meta=${token}`;
 
 }
 
-
-setTimeout(()=>{
-
-irDiscord()
-
-},3500)
+setTimeout(
+irDiscord,
+3500
+);
 
 </script>
 
