@@ -1,341 +1,683 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Acceso VIP — Contenido Exclusivo</title>
 
-<title>Acceso VIP</title>
-
+<!-- ================================================
+  META PIXEL — Carga sincrona para máxima captación
+  Reemplazá 1383716853246156 con tu Pixel ID
+================================================= -->
 <script>
-!function(f,b,e,v,n,t,s){...}
-fbq('init','1383716853246156');
-fbq('track','PageView');
-  
-function getCookie(name){
-    const match =
-    document.cookie.match(
-        new RegExp('(^| )'+name+'=([^;]+)')
-    );
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
-    return match
-    ? match[2]
-    : null;
+const PIXEL_ID = '1383716853246156'; // ← TU PIXEL ID
+
+// ─── Helpers de tracking ────────────────────────────────────────────
+function getCookie(name) {
+  const m = document.cookie.match('(^| )' + name + '=([^;]+)');
+  return m ? m[2] : null;
 }
 
-function getFbc(){
+function getFbc() {
+  const url = new URL(window.location.href);
+  const fbclid = url.searchParams.get('fbclid');
+  if (fbclid) {
+    const fbc = `fb.1.${Date.now()}.${fbclid}`;
+    try { localStorage.setItem('meta_fbc', fbc); } catch(e) {}
+    return fbc;
+  }
+  try { return localStorage.getItem('meta_fbc'); } catch(e) { return null; }
+}
 
-    const url =
-    new URL(window.location.href);
+function getFbp() {
+  // Primero cookie, fallback localStorage por si el Pixel cargó tarde
+  const fromCookie = getCookie('_fbp');
+  if (fromCookie) return fromCookie;
+  try { return localStorage.getItem('meta_fbp') || null; } catch(e) { return null; }
+}
 
-    const fbclid =
-    url.searchParams.get("fbclid");
-
-    if(fbclid){
-
-        const fbc =
-        `fb.1.${Date.now()}.${fbclid}`;
-
-        localStorage.setItem(
-            "meta_fbc",
-            fbc
-        );
-
-        return fbc;
+// Generamos un event_id único para esta sesión (deduplicación browser ↔ CAPI)
+function getEventId(eventName) {
+  const key = `eid_${eventName}`;
+  try {
+    let eid = sessionStorage.getItem(key);
+    if (!eid) {
+      eid = (typeof crypto !== 'undefined' && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      sessionStorage.setItem(key, eid);
     }
-
-    return localStorage.getItem(
-        "meta_fbc"
-    );
+    return eid;
+  } catch(e) {
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
 }
 
-function irDiscord(){
+// ─── Init Pixel ──────────────────────────────────────────────────────
+fbq('init', PIXEL_ID, {
+  // Si tenés email del usuario disponible, hashealo y pasalo acá
+  // em: 'sha256_hashed_email'
+});
 
-    fetch("https://api.ipify.org?format=json")
-    .then(r=>r.json())
-    .then(data=>{
-    
-    const tracking={
-    
-    fbp:getCookie("_fbp"),
-    
-    fbc:getFbc(),
-    
-    ua:navigator.userAgent,
-    
-    ip:data.ip
-    
-    };
-    
-    const token =
-    btoa(JSON.stringify(tracking));
-    
-    window.location.href=
-    `https://discord.gg/bE3gUhz9Tb?meta=${token}`;
-    
-    });
+// ViewContent con event_id para deduplicación
+const vcEventId = getEventId('ViewContent');
+fbq('track', 'ViewContent', {
+  content_name: 'Landing VIP Discord',
+  content_category: 'VIP Access',
+  currency: 'ARS',
+}, { eventID: vcEventId });
 
+// Guardamos datos de tracking para pasarlos al bot
+window._trackingData = {
+  fbp: null,  // se llena después del DOMContentLoaded
+  fbc: getFbc(),
+  ua: navigator.userAgent,
+  url: window.location.href,
+  ts: Date.now(),
+  vcEventId: vcEventId,
+};
 
-    const token =
-    btoa(
-        JSON.stringify(
-            tracking
-        )
-    );
-
-
-    window.location.href=
-    `https://discord.gg/bE3gUhz9Tb?meta=${token}`;
-
-}
-
-setTimeout(
-irDiscord,
-3500
-);
-
+// Intentamos capturar fbp después de que el Pixel lo haya seteado
+setTimeout(() => {
+  window._trackingData.fbp = getFbp();
+  try { localStorage.setItem('meta_fbp', window._trackingData.fbp || ''); } catch(e) {}
+}, 800);
 </script>
+<!-- NoScript Pixel -->
+<noscript>
+  <img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1383716853246156&ev=PageView&noscript=1"/>
+</noscript>
 
+<!-- ================================================
+  FUENTES
+================================================= -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:
-gg sans,
-"Noto Sans",
-Arial,
-sans-serif;
+/* ── Reset & Variables ──────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0; padding: 0; box-sizing: border-box;
 }
 
-body{
-
-height:100vh;
-
-display:flex;
-justify-content:center;
-align-items:center;
-
-background:
-linear-gradient(
-180deg,
-#313338 0%,
-#1e1f22 100%
-);
-
-color:white;
-
+:root {
+  --discord:    #5865F2;
+  --discord-dk: #3d47d4;
+  --gold:       #F5A623;
+  --gold-glow:  rgba(245,166,35,.35);
+  --bg:         #0d0e10;
+  --surface:    #16181c;
+  --surface2:   #1e2026;
+  --border:     rgba(255,255,255,.07);
+  --text:       #f0f1f3;
+  --muted:      #7c8591;
+  --green:      #23a55a;
+  --font-head:  'Syne', sans-serif;
+  --font-body:  'DM Sans', sans-serif;
 }
 
+html { scroll-behavior: smooth; }
 
-.card{
-
-background:#2b2d31;
-
-padding:
-40px
-35px;
-
-border-radius:18px;
-
-width:min(
-420px,
-92vw
-);
-
-text-align:center;
-
-box-shadow:
-0 30px 60px rgba(0,0,0,.45);
-
-border:
-1px solid rgba(255,255,255,.05);
-
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  position: relative;
 }
 
-
-.logo{
-
-width:82px;
-height:82px;
-
-margin:auto;
-margin-bottom:24px;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-background:#5865F2;
-
-border-radius:50%;
-
-box-shadow:
-0 0 40px rgba(88,101,242,.35);
-
+/* ── Fondo animado ──────────────────────────────────────────────── */
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.bg-glow::before {
+  content: '';
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(88,101,242,.18) 0%, transparent 70%);
+  top: -200px; left: 50%;
+  transform: translateX(-50%);
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+.bg-glow::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%);
+  bottom: -100px; right: -100px;
+  animation: pulse-glow 6s ease-in-out infinite reverse;
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: .6; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.15); }
 }
 
-
-.logo svg{
-
-width:46px;
-fill:white;
-
+/* Noise texture overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+  opacity: .5;
 }
 
-
-h1{
-
-font-size:30px;
-margin-bottom:12px;
-
+/* ── Card ───────────────────────────────────────────────────────── */
+.card {
+  position: relative;
+  z-index: 10;
+  width: min(460px, 94vw);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 44px 40px 36px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.04),
+    0 40px 80px rgba(0,0,0,.6),
+    0 0 60px rgba(88,101,242,.08);
+  animation: card-in .5s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(28px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-
-p{
-
-color:#b5bac1;
-font-size:15px;
-
-margin-bottom:28px;
-
-line-height:1.5;
-
+/* ── Badge de urgencia ──────────────────────────────────────────── */
+.urgency-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245,166,35,.12);
+  border: 1px solid rgba(245,166,35,.3);
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+.urgency-badge .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: dot-blink 1.2s ease-in-out infinite;
+}
+@keyframes badge-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); }
+  50% { box-shadow: 0 0 0 6px rgba(245,166,35,.08); }
+}
+@keyframes dot-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .3; }
 }
 
+/* ── Logo Discord ───────────────────────────────────────────────── */
+.logo-wrap {
+  width: 76px; height: 76px;
+  margin: 0 auto 22px;
+  background: var(--discord);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 50px rgba(88,101,242,.4);
+  animation: logo-float 3s ease-in-out infinite;
+}
+@keyframes logo-float {
+  0%, 100% { transform: translateY(0); box-shadow: 0 0 50px rgba(88,101,242,.4); }
+  50% { transform: translateY(-5px); box-shadow: 0 10px 60px rgba(88,101,242,.55); }
+}
+.logo-wrap svg { width: 42px; fill: white; }
 
-button{
-
-width:100%;
-height:56px;
-
-border:none;
-border-radius:10px;
-
-background:#5865F2;
-
-color:white;
-
-font-size:16px;
-font-weight:700;
-
-cursor:pointer;
-
-transition:.15s;
-
+/* ── Tipografía ──────────────────────────────────────────────────── */
+h1 {
+  font-family: var(--font-head);
+  font-size: clamp(24px, 6vw, 30px);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #fff 40%, #a8b0ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
+.subtitle {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.55;
+  margin-bottom: 28px;
+}
+.subtitle strong { color: var(--text); font-weight: 600; }
 
-button:hover{
-
-background:#4752c4;
-
+/* ── Proof bar ───────────────────────────────────────────────────── */
+.proof-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+.proof-item {
+  flex: 1;
+  text-align: center;
+}
+.proof-item .num {
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--discord);
+  display: block;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.proof-item .label {
+  font-size: 10.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.proof-divider {
+  width: 1px;
+  background: var(--border);
+  align-self: stretch;
 }
 
-
-button:active{
-
-transform:
-scale(.97);
-
+/* ── Lista de beneficios ─────────────────────────────────────────── */
+.benefits {
+  list-style: none;
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: #c8cdd4;
+  line-height: 1.4;
+}
+.benefits li .icon {
+  width: 20px; height: 20px;
+  flex-shrink: 0;
+  background: rgba(88,101,242,.15);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  margin-top: 1px;
 }
 
-
-.small{
-
-margin-top:16px;
-
-font-size:12px;
-
-color:#949ba4;
-
+/* ── CTA Button ──────────────────────────────────────────────────── */
+.cta-wrap {
+  position: relative;
+}
+.cta-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--discord), #a855f7, var(--discord));
+  background-size: 200% 200%;
+  animation: grad-move 3s ease infinite;
+  z-index: -1;
+  filter: blur(8px);
+  opacity: .7;
+}
+@keyframes grad-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
+.cta-btn {
+  width: 100%;
+  height: 58px;
+  border: none;
+  border-radius: 12px;
+  background: var(--discord);
+  color: white;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+  transition: background .15s, transform .1s;
+}
+.cta-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+.cta-btn:hover { background: var(--discord-dk); }
+.cta-btn:active { transform: scale(.97); }
+.cta-btn svg { width: 22px; fill: white; flex-shrink: 0; }
+
+/* Shimmer en el botón */
+.cta-btn .shimmer {
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+  transform: skewX(-20deg);
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0% { left: -100%; }
+  60%, 100% { left: 150%; }
+}
+
+/* ── Contador regresivo ──────────────────────────────────────────── */
+.countdown-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.countdown-row .timer {
+  color: var(--text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .03em;
+}
+
+/* ── Footer trust signals ────────────────────────────────────────── */
+.trust-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.trust-item svg { width: 13px; opacity: .6; }
+
+/* ── Online counter ─────────────────────────────────────────────── */
+.online-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--green);
+  font-weight: 500;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+.online-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: dot-blink 1.4s ease-in-out infinite;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 400px) {
+  .card { padding: 32px 24px 28px; }
+  .proof-item .num { font-size: 17px; }
+}
 </style>
-
 </head>
 
-
 <body>
+<div class="bg-glow" aria-hidden="true"></div>
 
+<main class="card">
 
-<div class="card">
+  <!-- Badge urgencia -->
+  <div class="urgency-badge">
+    <span class="dot"></span>
+    Acceso limitado · 
+  </div>
 
+  <!-- Logo -->
+  <div class="logo-wrap" aria-hidden="true">
+    <svg viewBox="0 0 127.14 96.36">
+      <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.19a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.16A105.25,105.25,0,0,0,126.6,80.22C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C35.63,65.69,30,59.44,30,51.73S35.48,37.77,42.45,37.77,55,44.08,54.9,51.73,49.39,65.69,42.45,65.69Zm42.24,0c-6.82,0-12.43-6.25-12.43-14S77.72,37.77,84.69,37.77,97.24,44.08,97.14,51.73,91.63,65.69,84.69,65.69Z"/>
+    </svg>
+  </div>
 
-<div class="logo">
+  <!-- Headline -->
+  <h1>Accedé al contenido exclusivo</h1>
 
-<!-- LOGO DISCORD -->
+  <!-- Online ahora -->
+  <div class="online-pill">
+    <span class="online-dot"></span>
+    <span id="online-count">1.2K</span> personas conectadas ahora
+  </div>
 
-<svg viewBox="0 0 127.14 96.36">
+  <!-- Subtítulo con propuesta de valor -->
+  <p class="subtitle">
+    Entrá al servidor y accedé a <strong>contenido VIP</strong> que no vas a encontrar en ningún otro lado.
+    Solo para los que llegan hoy.
+  </p>
 
-<path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.19a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.16A105.25,105.25,0,0,0,126.6,80.22C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C35.63,65.69,30,59.44,30,51.73S35.48,37.77,42.45,37.77,55,44.08,54.9,51.73,49.39,65.69,42.45,65.69Zm42.24,0c-6.82,0-12.43-6.25-12.43-14S77.72,37.77,84.69,37.77,97.24,44.08,97.14,51.73,91.63,65.69,84.69,65.69Z"/>
+  <!-- Social proof numbers -->
+  <div class="proof-bar" role="group" aria-label="Estadísticas del servidor">
+    <div class="proof-item">
+      <span class="num">33.8K+</span>
+      <span class="label">Miembros</span>
+    </div>
+    <div class="proof-divider"></div>
+    <div class="proof-item">
+      <span class="num">+80GB</span>
+      <span class="label">Contenido</span>
+    </div>
+    <div class="proof-divider"></div>
+    <div class="proof-item">
+      <span class="num">24/7</span>
+      <span class="label">Activo</span>
+    </div>
+  </div>
 
-</svg>
+  <!-- Beneficios -->
+  <ul class="benefits" aria-label="Beneficios">
+    <li>
+      <span class="icon" aria-hidden="true">⚡</span>
+      Acceso inmediato al contenido premium sin esperas
+    </li>
+    <li>
+      <span class="icon" aria-hidden="true">🔒</span>
+      Canal privado solo para miembros verificados
+    </li>
+    <li>
+      <span class="icon" aria-hidden="true">🎯</span>
+      Actualizaciones exclusivas que no salen al público
+    </li>
+  </ul>
 
-</div>
+  <!-- CTA -->
+  <div class="cta-wrap">
+    <div class="cta-glow" aria-hidden="true"></div>
+    <button class="cta-btn" id="discord-btn" onclick="irDiscord()" aria-label="Entrar a Discord">
+      <svg viewBox="0 0 127.14 96.36" aria-hidden="true">
+        <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.19a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.16A105.25,105.25,0,0,0,126.6,80.22C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C35.63,65.69,30,59.44,30,51.73S35.48,37.77,42.45,37.77,55,44.08,54.9,51.73,49.39,65.69,42.45,65.69Zm42.24,0c-6.82,0-12.43-6.25-12.43-14S77.72,37.77,84.69,37.77,97.24,44.08,97.14,51.73,91.63,65.69,84.69,65.69Z"/>
+      </svg>
+      Entrar al servidor ahora
+      <span class="shimmer" aria-hidden="true"></span>
+    </button>
+  </div>
 
+  <!-- Countdown autoredirect -->
+  <div class="countdown-row" aria-live="polite">
+    <span>Redireccionando automáticamente en</span>
+    <span class="timer" id="countdown">5</span>
+    <span>seg...</span>
+  </div>
 
+  <!-- Trust signals -->
+  <div class="trust-row" aria-label="Señales de confianza">
+    <div class="trust-item">
+      <!-- Lock icon -->
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 1C9.24 1 7 3.24 7 6v1H5a2 2 0 00-2 2v11a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-2V6c0-2.76-2.24-5-5-5zm0 2c1.65 0 3 1.35 3 4v1H9V6c0-1.65 1.35-3 3-3zm0 9a2 2 0 110 4 2 2 0 010-4z"/>
+      </svg>
+      100% seguro
+    </div>
+    <div class="trust-item">
+      <!-- Check icon -->
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+      </svg>
+      Verificado
+    </div>
+    <div class="trust-item">
+      <!-- People icon -->
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+      </svg>
+      Comunidad activa
+    </div>
+  </div>
 
-<h1>
-
-Accede al contenido
-
-</h1>
-
-
-<p>
-
-Entra al servidor para continuar.
-
-</p>
-
-
-
-<button onclick="irDiscord()">
-
-Entrar a Discord
-
-</button>
-
-
-
-<div class="small">
-
-Redirección automática en unos segundos...
-
-</div>
-
-
-</div>
-
-
+</main>
 
 <script>
+// ================================================================
+//  TRACKING COMPLETO — No tocar sin entender la lógica
+// ================================================================
 
-function irDiscord(){
+// ── Botón loading state ──────────────────────────────────────────
+let alreadyClicked = false;
 
-fbq(
-'trackCustom',
-'DiscordClick'
-);
+// ── Función principal de click / redirect ───────────────────────
+async function irDiscord() {
+  if (alreadyClicked) return;
+  alreadyClicked = true;
 
-window.location.href=
-"https://discord.gg/bE3gUhz9Tb";
+  // UI feedback inmediato
+  const btn = document.getElementById('discord-btn');
+  btn.textContent = 'Entrando...';
+  btn.disabled = true;
 
+  // Event ID único para este Lead (deduplicación con CAPI)
+  const leadEventId = getEventId('Lead');
+
+  // Esperamos fbp si todavía no llegó
+  const fbp = getFbp() || window._trackingData.fbp || null;
+  const fbc = getFbc() || window._trackingData.fbc || null;
+
+  // Disparo evento Lead en el Pixel
+  fbq('track', 'Lead', {
+    content_name: 'Discord VIP Click',
+    currency: 'ARS',
+  }, { eventID: leadEventId });
+
+  // También disparamos desde la CAPI del lado del servidor:
+  // El token que mandamos al redirect incluye toda la data
+  // para que tu bot Python la use al disparar CompleteRegistration
+  let ipData = { ip: null };
+  try {
+    const r = await Promise.race([
+      fetch('https://api.ipify.org?format=json').then(x => x.json()),
+      new Promise((_, rej) => setTimeout(() => rej('timeout'), 2000))
+    ]);
+    ipData = r;
+  } catch(e) { /* silencioso, IP no es bloqueante */ }
+
+  const trackingPayload = {
+    fbp,
+    fbc,
+    ua:          navigator.userAgent,
+    ip:          ipData.ip,
+    url:         window.location.href,
+    ts:          Date.now(),
+    leadEventId, // tu bot lo usa para deduplicar el evento Lead en CAPI
+    vcEventId:   window._trackingData.vcEventId,
+  };
+
+  // Codificamos en base64 para pasarlo como query param
+  // TU BOT debe leer este param al detectar el join de Discord
+  const token = btoa(JSON.stringify(trackingPayload))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); // URL-safe base64
+
+  // Construimos la URL de Discord preservando el fbclid original si existe
+  const discordBase = 'https://discord.gg/bE3gUhz9Tb';
+  const redirectUrl = `${discordBase}?meta=${token}`;
+
+  // Pequeño delay para que el evento fbq se envíe antes de navegar
+  setTimeout(() => {
+    window.location.href = redirectUrl;
+  }, 250);
 }
 
+// ── Contador regresivo ───────────────────────────────────────────
+(function initCountdown() {
+  let secs = 5;
+  const el = document.getElementById('countdown');
 
-setTimeout(()=>{
+  const tick = setInterval(() => {
+    secs--;
+    if (el) el.textContent = secs;
+    if (secs <= 0) {
+      clearInterval(tick);
+      irDiscord();
+    }
+  }, 1000);
+})();
 
-irDiscord()
+// ── Simular "online ahora" con variación natural ─────────────────
+(function liveCounter() {
+  const el = document.getElementById('online-count');
+  if (!el) return;
+  let base = 230 + Math.floor(Math.random() * 40);
+  el.textContent = base;
 
-},3500)
+  setInterval(() => {
+    const delta = Math.floor(Math.random() * 7) - 2; // -2 a +4
+    base = Math.max(200, Math.min(310, base + delta));
+    el.textContent = base;
+  }, 4000);
+})();
 
-
+// ── Precargar Discord para que el redirect sea más rápido ────────
+setTimeout(() => {
+  const link = document.createElement('link');
+  link.rel = 'prefetch';
+  link.href = 'https://discord.gg/bE3gUhz9Tb';
+  document.head.appendChild(link);
+}, 1000);
 </script>
-
 
 </body>
 </html>
