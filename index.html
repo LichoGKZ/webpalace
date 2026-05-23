@@ -332,6 +332,104 @@ h1 {
   margin-top: 1px;
 }
 
+
+/* ── Comparación ───────────────────────────── */
+.compare-title{
+font-family:var(--font-head);
+font-size:20px;
+text-align:center;
+margin:30px 0 18px;
+line-height:1.2;
+}
+
+.compare-sub{
+text-align:center;
+font-size:13px;
+color:var(--muted);
+margin-bottom:20px;
+}
+
+.comparison{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-bottom:28px;
+  align-items:stretch;
+}
+
+.plan{
+  display:flex;
+  flex-direction:column;
+  padding:18px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.07);
+  background:#181b20;
+}
+.plan h3{
+  height:48px; /* mismo alto para títulos */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:16px;
+  text-align:center;
+}
+.plan.free{
+opacity:.82;
+}
+
+.plan.vip{
+background:
+linear-gradient(
+180deg,
+rgba(88,101,242,.08),
+rgba(168,85,247,.08)
+);
+border:1px solid rgba(88,101,242,.25);
+box-shadow:
+0 0 35px rgba(88,101,242,.12);
+}
+
+.compare-item{
+  display:flex;
+  align-items:center;
+  min-height:58px; /* fuerza altura igual */
+  padding:11px 0;
+  font-size:13px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  line-height:1.4;
+}
+
+.compare-item:last-child{
+border:none;
+}
+
+.compare-item.bad{
+color:#9aa1ad;
+}
+
+.compare-item.good{
+color:#e9edf3;
+font-weight:500;
+}
+
+.highlight-price{
+display:block;
+margin-top:12px;
+padding:12px;
+border-radius:12px;
+background:rgba(35,165,90,.12);
+text-align:center;
+font-weight:700;
+color:#fff;
+}
+
+@media(max-width:650px){
+.comparison{
+grid-template-columns:1fr;
+}
+}
+
+
 /* ── CTA Button ──────────────────────────────────────────────────── */
 .cta-wrap {
   position: relative;
@@ -577,90 +675,115 @@ h1 {
 
 
 
-</div>
+
+
+  <!-- Beneficios -->
+<h2 class="compare-title">
+¿Por qué pagar 20 USD un OnlyFans??
+</h2>
+
+<p class="compare-sub">
+Si por $3.700 pesos tenes +80 en un solo lugar.
+</p>
+
+<div class="comparison">
+
+  <div class="plan free">
+
+    <h3>🌐 Otras plataformas</h3>
+
+    <div class="compare-item bad">❌ Suscripciones separadas</div>
+    <div class="compare-item bad">❌ Contenido disperso</div>
+    <div class="compare-item bad">❌ Horas buscando</div>
+    <div class="compare-item bad">❌ Sin comunidad privada</div>
+    <div class="compare-item bad">❌ Suscripciones caras</div>
+
+  </div>
+
+
+  <div class="plan vip">
+
+    <h3>🔥 Palace VIP</h3>
+
+    <div class="compare-item good">✅ Biblioteca organizada (80GB+)</div>
+    <div class="compare-item good">✅ Todo centralizado</div>
+    <div class="compare-item good">✅ Actualizaciones frecuentes</div>
+    <div class="compare-item good">✅ Comunidad Argentina</div>
+    <div class="compare-item good">✅ Pago único</div>
+
+
+
+  </div>
+
+</div> <!-- CIERRA comparison -->
+
 
 <div class="discord-preview">
 
   <div class="server-head">
+
     <img
-      src="https://media.discordapp.net/attachments/1454927245503103138/1507799517808951406/ChatGPT_Image_23_may_2026_02_36_20_p.m..png?ex=6a13373a&is=6a11e5ba&hm=af5db84358d4098142ad0f3239fd6d4e2bc75d7acd358e625aa88bd8c9b27bf8&=&format=webp&quality=lossless&width=960&height=960"
+      src="logo.png"
       class="server-icon">
 
     <div>
       <h3>Palace +18</h3>
+
       <span>
-<span class="green-dot"></span>
-287 online • 33.8K miembros • +186 hoy
+        <span class="green-dot"></span>
+        287 online • 33.8K miembros • +186 hoy
+      </span>
+
     </div>
+
   </div>
+
 
   <div class="channels">
-
-<div>🔥 # filtraciones-free — 84 mensajes hoy</div>
-<div>💬 # chat-general — activo ahora</div>
-<div>⭐ # contenido-premium — actualizado</div>
-<div>🟢 # mejores-amigos — 12 mensajes hoy</div>
+    <div>🔥 # filtraciones-free — 84 mensajes hoy</div>
+    <div>💬 # chat-general — activo ahora</div>
+    <div>⭐ # contenido-premium — actualizado</div>
+    <div>🟢 # mejores-amigos — 12 mensajes hoy</div>
   </div>
 
-<div class="members">
 
-<div class="member">
-<img src="https://cdn.discordapp.com/embed/avatars/0.png">
-<small>lua</small>
+  <div class="members">
+
+    <div class="member">
+      <img src="https://cdn.discordapp.com/embed/avatars/0.png">
+      <small>lua</small>
+    </div>
+
+    <div class="member">
+      <img src="https://cdn.discordapp.com/embed/avatars/1.png">
+      <small>nicoo.7</small>
+    </div>
+
+    <div class="member">
+      <img src="https://cdn.discordapp.com/embed/avatars/2.png">
+      <small>elgula</small>
+    </div>
+
+    <div class="member">
+      <img src="https://cdn.discordapp.com/embed/avatars/3.png">
+      <small>Cometrava</small>
+    </div>
+
+    <div class="member">
+      <img src="https://cdn.discordapp.com/embed/avatars/4.png">
+      <small>!Ssantos</small>
+    </div>
+
+    <span>+273 conectados ahora</span>
+
+  </div>
+
 </div>
 
-<div class="member">
-<img src="https://cdn.discordapp.com/embed/avatars/1.png">
-<small>nicoo.7</small>
-</div>
-
-<div class="member">
-<img src="https://cdn.discordapp.com/embed/avatars/2.png">
-<small>elgula</small>
-</div>
-
-<div class="member">
-<img src="https://cdn.discordapp.com/embed/avatars/3.png">
-<small>Cometrava</small>
-</div>
-
-<div class="member">
-<img src="https://cdn.discordapp.com/embed/avatars/4.png">
-<small>!Ssantos</small>
-</div>
-
-<span class="online-users">
-+273 conectados ahora
-</span>
-
 </div>
 </div>
 
-  <!-- Beneficios -->
-<ul class="benefits">
-
-
-<li>
-<span class="icon">📦</span>
-Biblioteca de contenido exclusivo (80GB+)
-</li>
-
-<li>
-<span class="icon">🔄</span>
-Actualizaciones frecuentes sin costo adicional
-</li>
-
-<li>
-<span class="icon">👥</span>
-Comunidad privada activa 24/7
-</li>
-
-<li>
-<span class="icon">💰</span>
-Pago único de <strong>$3.700 ARS</strong> (sin suscripción)
-</li>
-
-</ul>
+</div>
 
   <!-- CTA -->
   <div class="cta-wrap">
